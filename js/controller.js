@@ -23,7 +23,7 @@
       };
 
       _this.init = function() {
-         $scope.map = MapService.generateMap($scope.user.location || "95116");
+         $scope.map = MapService.generateMap($scope.user.location);
          _this.clearResults();
          tick();
 
@@ -61,6 +61,7 @@
          // Go back to default view
          AnnyangService.addCommand('(Go) home', defaultView);
          AnnyangService.addCommand('(Go) back', defaultView);
+         AnnyangService.addCommand('Close', defaultView);
          
          
          // Configuration - Name
@@ -74,7 +75,7 @@
          AnnyangService.addCommand('My location is *location', function(location) {
             console.debug("Change location to: " + location);
             $scope.user.location = location;
-            $scope.map = MapService.generateMap($scope.user.location || "95116");
+            $scope.map = MapService.generateMap($scope.user.location);
          });
          
          
