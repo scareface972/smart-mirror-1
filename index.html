@@ -51,7 +51,7 @@
   <div class="middle-center">
     <h1>{{complement}}</h1>
     <h3 ng-show="!(user.name === undefined)">{{user.name}}</h3>
-    <div class="listening" ng-show="listening">Ready: {{focus}}</div>
+    <!-- <div class="listening" ng-show="listening">{{focus}}</div> -->
     <div class="map-container animate-grow" ng-show="focus == 'map'">
       <img class="map animate-grow" ng-src="{{map}}"/>
     </div>
@@ -59,7 +59,7 @@
 
   <div class="bottom-center">
     <div ng-show="focus != 'commands'">
-        Say "What can I say?" to see a list of commands...
+        Say something, or say 'menu' for help...
     </div>
     <!-- Command list -->
     <div class="commands animate-grow" ng-show="focus == 'commands'">
@@ -87,7 +87,7 @@
   </div>
 </div>
 <!-- Debug Buttons -->
-<div class="debug-info"><button ng-click="debug = true">Open Debug</button></div>
+<!--div class="debug-info"><button ng-click="debug = true">Open Debug</button></div-->
 <div class="debug-info" ng-show="debug == true">
   <button ng-click="focus = (focus == 'map')?'default':'map'">Map</button>
   <button ng-click="focus = (focus == 'colors')?'default':'colors'">Colors</button>
