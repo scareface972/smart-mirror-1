@@ -10,6 +10,11 @@
       $scope.user = {};
 
       $scope.colors=["#6ed3cf", "#9068be", "#e1e8f0", "#e62739"];
+      
+      // $scope.personal_data = {
+//          "location": "95116",
+//          "name": "Steven Vo"
+//       };
 
       //Update the time
       var tick = function() {
@@ -18,7 +23,7 @@
       };
 
       _this.init = function() {
-         $scope.map = MapService.generateMap("San Jose,CA");
+         $scope.map = MapService.generateMap($scope.user.location || "95116");
          _this.clearResults();
          tick();
 
@@ -58,6 +63,21 @@
          AnnyangService.addCommand('(Go) back', defaultView);
          
          
+         // Configuration - Name
+         // Change name
+         AnnyangService.addCommand('My name is *name', function(name) {
+            console.debug("Hi", name, "nice to meet you");
+            $scope.user.name = name;
+            $scope.complement = "Hello, " + name + ".";
+         });
+         // Change location
+         AnnyangService.addCommand('My location is *location', function(location) {
+            console.debug("Change location to: " + location);
+            $scope.user.location = location;
+            $scope.map = MapService.generateMap($scope.user.location || "95116");
+         });
+         
+         
 
          // Hide everything and "sleep"
          AnnyangService.addCommand('(Go to) sleep', function() {
@@ -78,6 +98,12 @@
             console.debug("Boop Boop. Showing debug info: " + state + "...");
             $scope.debug = state == "on" ? true : false;
          });
+         // Clear log of commands
+         AnnyangService.addCommand('Clear results', function(task) {
+            console.debug("Clearing results");
+            _this.clearResults()
+         });
+         
          
          
 
@@ -89,7 +115,7 @@
          
          
 
-         // Hide everything and "sleep"
+         // Show map of specific location
          AnnyangService.addCommand('Show (me a) map of *location', function(location) {
             console.debug("Getting map of", location);
             $scope.map = MapService.generateMap(location);
@@ -97,56 +123,51 @@
          });
 
          // Zoom in map
-         AnnyangService.addCommand('Map zoom in', function() {
+         AnnyangService.addCommand('(Map) zoom in', function() {
             console.debug("Zoooooooom!!!");
             $scope.map = MapService.zoomIn();
             $scope.focus = "map";
          });
 
-         AnnyangService.addCommand('Map zoom out', function() {
+         AnnyangService.addCommand('(Map) zoom out', function() {
             console.debug("Moooooooooz!!!");
             $scope.map = MapService.zoomOut();
             $scope.focus = "map";
          });
 
-         AnnyangService.addCommand('Map reset zoom', function() {
+         AnnyangService.addCommand('(Map) reset zoom', function() {
             console.debug("Zoooommmmmzzz00000!!!");
             $scope.map = MapService.reset();
             $scope.focus = "map";
          });
 
-         // Search images
-         AnnyangService.addCommand('Show me *term', function(term) {
-            console.debug("Showing", term);
-         });
 
-         // Change name
-         AnnyangService.addCommand('My name is *name', function(name) {
-            console.debug("Hi", name, "nice to meet you");
-            $scope.user.name = name;
-         });
+
+
+         // Search images
+         // AnnyangService.addCommand('Show me *term', function(term) {
+         //    console.debug("Showing", term);
+         // });
+
+
 
          // Set a reminder
-         AnnyangService.addCommand('Remind me to *task', function(task) {
-            console.debug("I'll remind you to", task);
-         });
+         // AnnyangService.addCommand('Remind me to *task', function(task) {
+         //    console.debug("I'll remind you to", task);
+         // });
 
          // Clear reminders
-         AnnyangService.addCommand('Clear reminders', function() {
-            console.debug("Clearing reminders");
-         });
+         // AnnyangService.addCommand('Clear reminders', function() {
+         //    console.debug("Clearing reminders");
+         // });
 
-         // Clear log of commands
-         AnnyangService.addCommand('Clear results', function(task) {
-            console.debug("Clearing results");
-            _this.clearResults()
-         });
+         
 
          // Check the time
-         AnnyangService.addCommand('what time is it', function(task) {
-            console.debug("It is", moment().format('h:mm:ss a'));
-            _this.clearResults();
-         });
+         // AnnyangService.addCommand('what time is it', function(task) {
+         //    console.debug("It is", moment().format('h:mm:ss a'));
+         //    _this.clearResults();
+         // });
 
          // Turn lights off
          // AnnyangService.addCommand('(turn) (the) :state (the) light(s) *action', function(state, action) {
