@@ -4,7 +4,7 @@
 var smartMirror = angular.module('smartMirror', []);
 
 smartMirror.controller("smartMirrorCtrl", function($scope) {
-  $scope.someting = "Hello World";
+  $scope.something = "Hello World";
 });
 
 // first we make sure annyang started succesfully

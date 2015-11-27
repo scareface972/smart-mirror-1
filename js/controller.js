@@ -1,20 +1,15 @@
 (function(angular) {
    'use strict';
 
-   function MirrorCtrl(AnnyangService, GeolocationService, WeatherService, MapService, HueService, $scope, $timeout) {
+   function MirrorCtrl(AnnyangService, GeolocationService, WeatherService, MapService, HueService, $scope, $timeout, $window) {
       var _this = this;
       $scope.listening = false;
       $scope.debug = false;
-      $scope.complement = "Hi, sexy!"
+      $scope.complement = "Good Day!"
       $scope.focus = "Say something, or say 'menu'";
       $scope.user = {};
 
       $scope.colors=["#6ed3cf", "#9068be", "#e1e8f0", "#e62739"];
-      
-      // $scope.personal_data = {
-//          "location": "95116",
-//          "name": "Steven Vo"
-//       };
 
       //Update the time
       var tick = function() {
@@ -36,7 +31,7 @@
                console.log("Current", $scope.currentForcast);
                console.log("Weekly", $scope.weeklyForcast);
                //refresh the weather every hour
-               //this doesn't acutually updat the UI yet
+               //this doesn't acutually update the UI yet
                //$timeout(WeatherService.refreshWeather, 3600000);
             });
          })
@@ -142,7 +137,14 @@
             $scope.focus = "map";
          });
 
-
+         var reload_page_function = function(){
+            console.debug("reload page!!!");
+            $window.location.reload();
+         };
+         AnnyangService.addCommand('reload (page)', reload_page_function);
+         AnnyangService.addCommand('refresh (page)', reload_page_function);
+         
+         
 
 
          // Search images
