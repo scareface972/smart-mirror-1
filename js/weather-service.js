@@ -9,9 +9,11 @@
       service.init = function(geoposition) {
          geoloc = geoposition;
          // return $http.get('https://api.forecast.io/forecast/'+FORCAST_API_KEY+'/'+geoposition.coords.latitude+','+geoposition.coords.longitude + '?units=si').
-         return $http.get('https://api.forecast.io/forecast/'+FORCAST_API_KEY+'/'+geoposition.coords.latitude+','+geoposition.coords.longitude + '?units=').
-         then(function(response) {
-            return service.forcast = response;
+         var url = 'https://api.forecast.io/forecast/'+FORCAST_API_KEY+'/'+geoposition.coords.latitude+','+geoposition.coords.longitude;
+         console.log(url);
+         return $http.jsonp(url + "?callback=JSON_CALLBACK").then(function(data) {
+            console.log(data);
+            return service.forcast = data;
          });
       };
 
