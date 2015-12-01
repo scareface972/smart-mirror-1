@@ -22,16 +22,18 @@
       };
       
       var show_hide_section = function(name, action) {
-         if (action == "display") {  
+         if (action == "show") {  
             $scope["display_" + name] = true;
-         } else if (action == "remove") {
+         } else if (action == "hide") {
             $scope["display_" + name] = false;
          }
       }
       
       var log_response = function(msg){
          $scope.mirror_response = msg;
+         // AnnyangService.pause();
          VoiceSynthesisService.speak(msg);
+         // AnnyangService.resume();
       }
       
 
@@ -62,22 +64,24 @@
             $scope.focus = "Say something, or say 'menu'";
          }
          
-         
-         // Show section
-         AnnyangService.addCommand('display :section_name', function(section_name) {
+         // 'Show (me the) :section_name'
+         AnnyangService.addCommand('Show (me the) :section_name', function(section_name) {
             console.debug("Display section: " + section_name);
-            log_response("Display section: " + section_name);
+            show_hide_section(section_name, "show");
+            
+            log_response("Show section: " + section_name);
             console.log(AnnyangService.commands);
-            show_hide_section(section_name, "display");
             // $scope.focus = "commands";            
          });
          
-         // Hide section
-         AnnyangService.addCommand('remove :section_name', function(section_name) {
+         //'Turn off (the) :section_name'
+         AnnyangService.addCommand('Turn off (the) :section_name', function(section_name) {
             console.debug("Hide section: " + section_name);
+            show_hide_section(section_name, "hide");
+            
             log_response("Hide section: " + section_name);
             console.log(AnnyangService.commands);
-            show_hide_section(section_name, "remove");
+            
             // $scope.focus = "commands";
          });
          
@@ -89,8 +93,6 @@
             $scope.focus = "commands";
          });
 
-         
-         
          // Go back to default view
          AnnyangService.addCommand('(Go) home', defaultView);
          AnnyangService.addCommand('(Go) back', defaultView);
