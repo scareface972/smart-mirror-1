@@ -74,7 +74,7 @@
             // $scope.focus = "commands";            
          });
          
-         //'Turn off (the) :section_name'
+         // 'Turn off (the) :section_name'
          AnnyangService.addCommand('Turn off (the) :section_name', function(section_name) {
             console.debug("Hide section: " + section_name);
             show_hide_section(section_name, "hide");

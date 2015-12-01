@@ -3,11 +3,11 @@
 <head>
    <title>Smart Mirror</title>
    <!-- Libraries -->
-   <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.0.0/annyang.min.js"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.js"></script>
-   <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
-   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-animate.min.js"></script>
+   <script src="js/annyang.min.js"></script>
+   <script src="js/moment.js"></script>
+   <script src="js/jquery.min.js"></script>
+   <script src="js/angular.min.js"></script>
+   <script src="js/angular-animate.min.js"></script>
 
    <!-- App -->
    <!--<script src="/js/init.js"></script>-->
@@ -51,11 +51,10 @@
       <div class="container">
          <div class="middle-center">
             <h1>{{complement}}</h1>
-            <!--h3 ng-show="!(user.name === undefined)">{{user.name}}</h3-->
-            <!-- <div class="listening" ng-show="listening">{{focus}}</div> -->
             <div class="map-container animate-grow" ng-show="focus == 'map'">
                <img class="map animate-grow" ng-src="{{map}}"/>
             </div>
+            
          </div>
 
          <div class="bottom-center">
@@ -63,52 +62,12 @@
             <div ng-bind="mirror_response">
                Say something, or say 'menu' for help...
             </div>
-            <!-- Command list -->
-            <div class="commands animate-grow" ng-show="focus == 'commands'">
-               <h2>You can say:</h2>
-               <dl>
-                  <dt>Show map</dt>
-                  <!-- <dd>Shows a list of voice commands available to you.</dd> -->
-                  <dt>Go home, go back, home, back</dt>
-                  <dt>Show map</dt>
-                  <dd>Shows a map of your current city.</dd>
-                  <dt>Show map of ________</dt>
-                  <dd>Shows a map of the given location.</dd>        
-                  <!-- <dd>Takes you back to the home screen</dd> -->
-                  <!-- <dt>Show me ________</dt> -->
-                  <!-- <dd>Will show you pictures of the requested item.</dd> -->
-                  <!-- <dt>Remind me to ________</dt> -->
-                  <!-- <dd>Add something to the reminders list.</dd> -->
-                  <!-- <dt>Clear reminders</dt> -->
-                  <!-- <dd>Clears out your reminders list.</dd> -->
-               </dl>
-            </div>
          </div>
          <div class="colors animate-grow" ng-show="focus == 'colors'">
             <div class="color-block" ng-repeat="color in colors" style="background-color:{{color}}"></div>
          </div>
       </div>
-      <!-- Debug Buttons -->
-      <!--div class="debug-info"><button ng-click="debug = true">Open Debug</button></div-->
-      <div class="debug-info" ng-show="debug == true">
-         <button ng-click="focus = (focus == 'map')?'default':'map'">Map</button>
-         <button ng-click="focus = (focus == 'colors')?'default':'colors'">Colors</button>
-         <button ng-click="focus = (focus == 'commands')?'default':'commands'">Commands</button>
-         <button ng-click="debug = false">Close Debug</button>
-         <!-- Has results -->
-         <div ng-show="commands.results.length > 0">
-            <button class="btn btn-default" ng-click="commands.clearResults()">Clear</button>
-
-            <hr/>
-
-            <ul class="list-group">
-               <li class="list-group-item" ng-repeat="result in commands.results">
-                  <span class="badge">{{ result.date | date : 'EEE MMM, yyyy hh:mm:ss a' }}</span>
-                  {{ result.content }}
-               </li>
-            </ul>
-         </div>
-      </div>
+            
       <!-- Sleep cover -->
       <div ng-show="focus == 'sleep'" class="sleep-cover fade"></div>
    </body>
