@@ -1,7 +1,7 @@
 (function(angular) {
-   'use strict';
+   'use strict';   
 
-   function MirrorCtrl(AnnyangService, GeolocationService, WeatherService, MapService, HueService, $scope, $timeout, $window) {
+   function MirrorCtrl(AnnyangService, VoiceSynthesisService, GeolocationService, WeatherService, MapService, HueService, $scope, $timeout, $window) {
       var _this = this;
       $scope.listening = false;
       $scope.debug = false;
@@ -10,12 +10,30 @@
       $scope.user = {};
 
       $scope.colors=["#6ed3cf", "#9068be", "#e1e8f0", "#e62739"];
-
+      
+      $scope.display_time = false;
+      
+      $scope.mirror_response = "Say something, or say 'menu' for help...";
+      
       //Update the time
       var tick = function() {
          $scope.date = new Date();
          $timeout(tick, 1000 * 60);
       };
+      
+      var show_hide_section = function(name, action) {
+         if (action == "display") {  
+            $scope["display_" + name] = true;
+         } else if (action == "remove") {
+            $scope["display_" + name] = false;
+         }
+      }
+      
+      var log_response = function(msg){
+         $scope.mirror_response = msg;
+         VoiceSynthesisService.speak(msg);
+      }
+      
 
       _this.init = function() {
          $scope.map = MapService.generateMap($scope.user.location);
@@ -25,15 +43,15 @@
          //Get our location and then get the weather for our location
          GeolocationService.getLocation().then(function(geoposition){
             console.log("Geoposition", geoposition);
-            WeatherService.init(geoposition).then(function(){
-               $scope.currentForcast = WeatherService.currentForcast();
-               $scope.weeklyForcast = WeatherService.weeklyForcast();
-               console.log("Current", $scope.currentForcast);
-               console.log("Weekly", $scope.weeklyForcast);
-               //refresh the weather every hour
-               //this doesn't acutually update the UI yet
-               //$timeout(WeatherService.refreshWeather, 3600000);
-            });
+            // WeatherService.init(geoposition).then(function(){
+//                $scope.currentForcast = WeatherService.currentForcast();
+//                $scope.weeklyForcast = WeatherService.weeklyForcast();
+//                console.log("Current", $scope.currentForcast);
+//                console.log("Weekly", $scope.weeklyForcast);
+//                //refresh the weather every hour
+//                //this doesn't acutually update the UI yet
+//                //$timeout(WeatherService.refreshWeather, 3600000);
+//             });
          })
 
          //Initiate Hue communication
@@ -43,6 +61,26 @@
             console.debug("Ok, going to default view...");
             $scope.focus = "Say something, or say 'menu'";
          }
+         
+         
+         // Show section
+         AnnyangService.addCommand('display :section_name', function(section_name) {
+            console.debug("Display section: " + section_name);
+            log_response("Display section: " + section_name);
+            console.log(AnnyangService.commands);
+            show_hide_section(section_name, "display");
+            // $scope.focus = "commands";            
+         });
+         
+         // Hide section
+         AnnyangService.addCommand('remove :section_name', function(section_name) {
+            console.debug("Hide section: " + section_name);
+            log_response("Hide section: " + section_name);
+            console.log(AnnyangService.commands);
+            show_hide_section(section_name, "remove");
+            // $scope.focus = "commands";
+         });
+         
 
          // Show the menu
          AnnyangService.addCommand('Menu', function() {
@@ -85,7 +123,7 @@
 
          // Go back to default view
          AnnyangService.addCommand('Wake up', defaultView);
-         AnnyangService.addCommand('Mirror', defaultView);
+         // AnnyangService.addCommand('Mirror', defaultView);
          
          
 
