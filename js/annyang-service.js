@@ -23,6 +23,7 @@
             console.debug('added command "' + phrase + '"', service.commands);
         };
 
+
         service.start = function(listening) {
             annyang.addCommands(service.commands);
             annyang.debug(true);

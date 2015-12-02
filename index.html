@@ -32,36 +32,64 @@
          <div class="date grey">{{date | date : 'EEEE, MMMM d yyyy'}}</div>
          <div class="time">{{date | date : 'hh:mm a'}}</div>
       </div>
-      <!--div class="top-right">
-         <div class="weather">
-         <div class="weather-today">
-         <span class="tempreture">{{currentForcast.temperature}}&deg;</span>
+      <div class="top-right">
+         <div class="weather" ng-show='display_weather'>
+            <div class="weather-today">
+               <span class="tempreture">{{currentForcast.temperature}}&deg;</span>
+            </div>
+            <div class="weather-week-descriptor">{{weeklyForcast.summary}}</div>
+            <div class="weather-week" ng-repeat="forcast in weeklyForcast.data" ng-if="$index > 0">
+               <div class="weather-week-day">
+                  <span class="day light-grey">{{forcast.day}}</span>
+                  <span class="tempreture tempreture-min">{{forcast.temperatureMin}}</span>
+                  <span class="tempreture tempreture-max">{{forcast.temperatureMax}}</span>
+               </div>
+            </div>
          </div>
-         <div class="weather-week-descriptor">{{weeklyForcast.summary}}</div>
-         <div class="weather-week" ng-repeat="forcast in weeklyForcast.data" ng-if="$index > 0">
-         <div class="weather-week-day">
-         <span class="day light-grey">{{forcast.day}}</span>
-         <span class="tempreture tempreture-min">{{forcast.temperatureMin}}</span>
-         <span class="tempreture tempreture-max">{{forcast.temperatureMax}}</span>
-         </div>
-         </div>
-         </div>
-         </div-->
+      </div>
       </div>
       <div class="container">
          <div class="middle-center">
-            <h1>{{complement}}</h1>
-            <div class="map-container animate-grow" ng-show="focus == 'map'">
+            
+            <!--h1>{{complement}}</h1-->
+            <div class="map-container animate-grow" ng-show="display_map">
                <img class="map animate-grow" ng-src="{{map}}"/>
             </div>
-            
+            <div ng-show='display_menu'>
+               <div>
+                   <div id="box1" class="box">
+                      <img src="images/datetime.png" width="140" height="140" alt="Large">
+                      Say 'TIME' or 'DATE'
+                       <!--p> Date &nbsp; Time </p>
+                       <p> Test </p-->
+                   </div>    
+                   <div class="box">
+                      <img src="images/weather.png" width="140" height="140" alt="Weather">
+                      Say 'WEATHER'
+                   </div>
+                   <div class="box">
+                      <img src="images/map.png" width="140" height="140" alt="Map">
+                      Say 'MAP' 
+                   </div>
+                   <div class="box">
+                       <p> Test </p>
+                       <p> Test </p>
+                   </div>
+                   <div class="box">
+                       <p> Test </p>
+                       <p> Test </p>
+                   </div>
+                   <div class="box">
+                       <p> Test </p>
+                       <p> Test </p>
+                   </div>
+               </div>
+            </div>
          </div>
 
          <div class="bottom-center">
             <!--div ng-show="focus != 'commands'"-->
-            <div ng-bind="mirror_response">
-               Say something, or say 'menu' for help...
-            </div>
+            <div ng-bind="mirror_response" />
          </div>
          <div class="colors animate-grow" ng-show="focus == 'colors'">
             <div class="color-block" ng-repeat="color in colors" style="background-color:{{color}}"></div>
