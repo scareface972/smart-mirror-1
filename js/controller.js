@@ -11,7 +11,9 @@
 
       $scope.colors           = ["#6ed3cf", "#9068be", "#e1e8f0", "#e62739"];
       $scope.mirror_response  = "Say something, or say 'MENU' for help...";
-      
+
+      $scope.last_distance       = 0;      
+      $scope.last_distance_count = 0;
       
       /*****************************************/
       /* Default display flag for each section */
@@ -83,16 +85,32 @@
             });
          });
          
-         InfraDistanceService.setup_callback(function(data){
-            console.log(data);
-         });
-         
+         if (DISTANCE_DETECTION == true) {
+            InfraDistanceService.setup_callback(function(d){               
+            
+               if (d > MAX_DISTANCE && $scope.last_distance > MAX_DISTANCE) {
+                  $scope.last_distance_count = $scope.last_distance_count + 1;
+                  $scope.last_distance       = d;               
+               } else if (d <= MAX_DISTANCE && $scope.last_distance <= MAX_DISTANCE) {
+                  $scope.last_distance_count = $scope.last_distance_count + 1;
+                  $scope.last_distance       = d;
+               } else {
+                  $scope.last_distance_count = 0;               
+                  $scope.last_distance       = d;                                          
+               }      
+               
+               if ($scope.last_distance_count > MIN_DISTANCE_COUNT) {
+                  if (d > MAX_DISTANCE && $scope.sections['display_sleep'] == false) {
+                     sleep();                              
+                  } else if (d <= MAX_DISTANCE && $scope.sections['display_sleep'] == true) {
+                     wakeup();
+                  }      
+               }
+               
+            });
+         }
 
-
-         // var defaultView = function() {
-         //    console.debug("Ok, going to default view...");
-         //    $scope.focus = "Say something, or say 'menu'";
-         // };
+  
          
          
          /**************************************/
@@ -153,18 +171,15 @@
                log_response('Don\'t you believe that I\'ve slept?');
             } else {               
                switch_sections(['display_sleep'], true);
-               switch_all_sections_to_state_except(false, []);
+               switch_all_sections_to_state_except(false, ['display_sleep']);
                log_response('Ok, I\'ll take a nap, goodbye!');
             }
          };
          
          /*** WAKEUP ***/
          var wakeup = function(){
-            
-            $scope.display_sleep       = false;
-            $scope.display_menu        = false;
-            $scope.display_map         = false;
-            $scope.display_complement  = true;
+            switch_all_sections_to_state_except(false, ['display_complement']);
+            switch_sections(['display_complement'], true);
             log_response('Hello, say something, or say \'MENU\' for help...');
          };
          
@@ -206,88 +221,6 @@
          });
          
          
-         
-         
-         
-         // // 'Show (me the) :section_name'
-//          AnnyangService.addCommand('Show (me the) :section_name', function(section_name) {
-//             console.debug("Display section: " + section_name);
-//             show_hide_section(section_name, "show");
-//
-//             log_response("Show section: " + section_name);
-//             console.log(AnnyangService.commands);
-//             // $scope.focus = "commands";
-//          });
-//
-//          // 'Turn off (the) :section_name'
-//          AnnyangService.addCommand('Turn off (the) :section_name', function(section_name) {
-//             console.debug("Hide section: " + section_name);
-//             show_hide_section(section_name, "hide");
-//
-//             log_response("Hide section: " + section_name);
-//             console.log(AnnyangService.commands);
-//
-//             // $scope.focus = "commands";
-//          });
-//
-//
-//          // Show the menu
-//          // AnnyangService.addCommand('Menu', function() {
-//          //    console.debug("Here is a list of commands...");
-//          //    console.log(AnnyangService.commands);
-//          //    $scope.focus = "commands";
-//          // });
-//
-//          // Go back to default view
-//          AnnyangService.addCommand('(Go) home', defaultView);
-//          AnnyangService.addCommand('(Go) back', defaultView);
-//          AnnyangService.addCommand('Close', defaultView);
-//
-//
-//          // Configuration - Name
-//          // Change name
-//          AnnyangService.addCommand('(hello) My name is *name', function(name) {
-//             console.debug("Hi", name, "nice to meet you");
-//             $scope.user.name = name;
-//             $scope.complement = "Hello, " + name + ".";
-//          });
-//          // Change location
-//          AnnyangService.addCommand('My location is *location', function(location) {
-//             console.debug("Change location to: " + location);
-//             $scope.user.location = location;
-//             $scope.map = MapService.generateMap($scope.user.location);
-//          });
-//
-//
-//
-//          // Hide everything and "sleep"
-//          AnnyangService.addCommand('(Go to) sleep', function() {
-//             console.debug("Ok, going to sleep...");
-//             $scope.focus = "sleep";
-//          });
-//
-//
-//
-//          // Go back to default view
-//          AnnyangService.addCommand('Wake up', defaultView);
-//          // AnnyangService.addCommand('Mirror', defaultView);
-//
-//
-//
-//          // For debugging
-//          AnnyangService.addCommand('Debugging :state', function(state) {
-//             console.debug("Boop Boop. Showing debug info: " + state + "...");
-//             $scope.debug = state == "on" ? true : false;
-//          });
-//          // Clear log of commands
-//          AnnyangService.addCommand('Clear results', function(task) {
-//             console.debug("Clearing results");
-//             _this.clearResults()
-//          });
-//
-//
-//
-//
 //          // Show map
 //          AnnyangService.addCommand('Show map', function() {
 //             console.debug("Going on an adventure?");
