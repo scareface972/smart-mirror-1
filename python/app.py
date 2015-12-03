@@ -10,6 +10,10 @@ import json
 import ADC0832 as ADC
 import RPi.GPIO as GPIO
 
+from tornado.options import define, options
+ 
+define("port", default=8888, help="run on the given port", type=int)
+
 cl = []
 
 class SocketHandler(tornado.websocket.WebSocketHandler):
@@ -49,5 +53,5 @@ if __name__ == '__main__':
         "certfile": "/etc/nginx/ssl/nginx.crt",
         "keyfile": "/etc/nginx/ssl/nginx.key",
     })
-    server.listen(8888)
+    server.listen(options.port)
     tornado.ioloop.IOLoop.instance().start()
