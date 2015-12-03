@@ -1,7 +1,7 @@
 (function(angular) {
    'use strict';   
 
-   function MirrorCtrl(AnnyangService, VoiceSynthesisService, GeolocationService, WeatherService, MapService, HueService, $scope, $timeout, $window) {
+   function MirrorCtrl(AnnyangService, InfraDistanceService, VoiceSynthesisService, GeolocationService, WeatherService, MapService, HueService, $scope, $timeout, $window) {
       var _this = this;
       
       $scope.listening  = false;
@@ -51,7 +51,7 @@
          for (var key in $scope.sections) {
             if (sections.indexOf(key) == -1){
                $scope.sections[key] = state;
-            }            
+            }
          }
       };
       
@@ -81,7 +81,12 @@
                //this doesn't acutually update the UI yet
                //$timeout(WeatherService.refreshWeather, 3600000);
             });
-         })
+         });
+         
+         InfraDistanceService.setup_callback(function(data){
+            console.log(data);
+         });
+         
 
 
          // var defaultView = function() {
