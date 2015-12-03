@@ -28,12 +28,12 @@
 </head>
 <body ng-controller="MirrorCtrl as commands">
    <div class="top" >
-      <div class="top-left" ng-show="display_time">
+      <div class="top-left" ng-show="sections['display_time']">
          <div class="date grey">{{date | date : 'EEEE, MMMM d yyyy'}}</div>
          <div class="time">{{date | date : 'hh:mm a'}}</div>
       </div>
       <div class="top-right">
-         <div class="weather" ng-show='display_weather'>
+         <div class="weather" ng-show="sections['display_weather']">
             <div class="weather-today">
                <span class="tempreture">{{currentForcast.temperature}}&deg;</span>
             </div>
@@ -50,12 +50,13 @@
       </div>
       <div class="container">
          <div class="middle-center">
-            
-            <!--h1>{{complement}}</h1-->
-            <div class="map-container animate-grow" ng-show="display_map">
+            <div ng-show="sections['display_complement']">
+               <h1>{{complement}}</h1>
+            </div>
+            <div class="map-container animate-grow" ng-show="sections['display_map']">
                <img class="map animate-grow" ng-src="{{map}}"/>
             </div>
-            <div ng-show='display_menu'>
+            <div ng-show="sections['display_menu']">
                <div>
                    <div id="box1" class="box">
                       <img src="images/datetime.png" width="140" height="140" alt="Large">
@@ -71,7 +72,7 @@
                       <img src="images/map.png" width="140" height="140" alt="Map">
                       Say 'MAP' 
                    </div>
-                   <div class="box">
+                   <!--div class="box">
                        <p> Test </p>
                        <p> Test </p>
                    </div>
@@ -82,7 +83,7 @@
                    <div class="box">
                        <p> Test </p>
                        <p> Test </p>
-                   </div>
+                   </div-->
                </div>
             </div>
          </div>
@@ -97,6 +98,6 @@
       </div>
             
       <!-- Sleep cover -->
-      <div ng-show="focus == 'sleep'" class="sleep-cover fade"></div>
+      <div ng-show="sections['display_sleep']" class="sleep-cover fade"></div>
    </body>
    </html>

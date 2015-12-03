@@ -15,11 +15,14 @@
       
       /*****************************************/
       /* Default display flag for each section */
-      $scope.display_time     = false;
-      $scope.display_menu     = false;
-      $scope.display_weather  = false;
-      $scope.display_map      = false;
-      
+      $scope.sections = {
+         display_complement   : true,
+         display_time         : false,
+         display_menu         : false,
+         display_weather      : false,
+         display_map          : false,
+         display_sleep        : false,
+      };      
       
       /**************************************/
       /*** Utility Functions ****/
@@ -35,8 +38,27 @@
          $scope.mirror_response = msg;
          console.log(msg);
          VoiceSynthesisService.speak(msg);
-      }
+      };
       
+      var switch_sections = function(sections, state){
+         for (var key in sections) {
+            // console.log("switch_sections: " + key + " = " + state);
+            $scope.sections[sections[key]] = state;
+         }
+      };
+      
+      var switch_all_sections_to_state_except = function(state, sections){
+         for (var key in $scope.sections) {
+            if (sections.indexOf(key) == -1){
+               $scope.sections[key] = state;
+            }            
+         }
+      };
+      
+      var invert_section = function(section_name){
+         $scope.sections[section_name] = !$scope.sections[section_name];
+         return $scope.sections[section_name];
+      }
       
       /**************************************/
       /*** MAIN SECTIONS ****/
@@ -74,34 +96,85 @@
 
          /*** MENU ***/
          var show_hide_menu = function(){
-            $scope.display_menu = !$scope.display_menu;
-            log_response('Ok, turning ' + ($scope.display_menu == true?'ON':'OFF') + ' MENU');
+            if ($scope.sections['display_sleep'] == false){
+               var new_state = invert_section('display_menu');
+               if (new_state == true) { // ON
+                  switch_sections(['display_map', 'display_complement'], false);               
+               }
+               log_response('Ok, turning ' + (new_state == true?'ON':'OFF') + ' MENU');
+            }            
          };
          
          /*** TIME ***/
          var show_hide_time = function(){
-            $scope.display_time = !$scope.display_time;
-            log_response('Ok, turning ' + ($scope.display_time == true?'ON':'OFF') + ' DATE/TIME');
+            if ($scope.sections['display_sleep'] == false){
+               var new_state = invert_section('display_time');
+               log_response('Ok, turning ' + (new_state == true?'ON':'OFF') + ' DATE/TIME');
+            }
          };
          
          /*** WEATHER ***/
          var show_hide_weather = function(){
-            $scope.display_weather = !$scope.display_weather;
-            log_response('Ok, turning ' + ($scope.display_weather == true?'ON':'OFF') + ' WEATHER');
+            if ($scope.sections['display_sleep'] == false){
+               var new_state = invert_section('display_weather');
+               log_response('Ok, turning ' + (new_state == true?'ON':'OFF') + ' WEATHER');
+            }            
          };
          
+         /*** MAP ***/
          var show_hide_map = function(){
-            $scope.display_menu = false;
-            $scope.display_map = !$scope.display_map;
-            log_response('Ok, turning ' + ($scope.display_map == true?'ON':'OFF') + ' MAP');
+            var new_state = invert_section('display_map');
+            if (new_state == true) { // ON
+               switch_sections(['display_menu', 'display_complement'], false);
+            } else {
+               switch_sections(['display_menu'], true);
+            }
+            log_response('Ok, turning ' + (new_state == true?'ON':'OFF') + ' MAP');
          };
          
+         /*** MAP OF *location ***/
          var load_map_location = function(location){
             $scope.display_menu = false;
             $scope.map = MapService.generateMap(location);
             $scope.display_map = true;
             log_response('Ok, loading map of ' + location);
          }
+         
+         
+         /*** SLEEP ***/
+         var sleep = function(){
+            console.log($scope.sections);
+            if ($scope.sections['display_sleep'] == true){
+               log_response('Don\'t you believe that I\'ve slept?');
+            } else {               
+               switch_sections(['display_sleep'], true);
+               switch_all_sections_to_state_except(false, []);
+               log_response('Ok, I\'ll take a nap, goodbye!');
+            }
+         };
+         
+         /*** WAKEUP ***/
+         var wakeup = function(){
+            
+            $scope.display_sleep       = false;
+            $scope.display_menu        = false;
+            $scope.display_map         = false;
+            $scope.display_complement  = true;
+            log_response('Hello, say something, or say \'MENU\' for help...');
+         };
+         
+         
+         /*** Fun Commands ***/
+         var yeswhynot = function(){
+            log_response('Yes, why not?');
+         };
+         var thankyou = function(){
+            log_response('Thank you!');
+         };
+         var imthemirror = function(){
+            log_response('Hello, I\'m the mirror!');
+         };
+         
          
          /***************************************************/
          /******** ADD COMMANDS INTO ANNYANG SERVICE ********/
@@ -113,6 +186,15 @@
             {'phrase': 'WEATHER',            'callback_fn': show_hide_weather},
             {'phrase': 'MAP',                'callback_fn': show_hide_map},
             {'phrase': 'MAP of *location',   'callback_fn': load_map_location},
+            
+            
+            {'phrase': '(Go to) sleep',      'callback_fn': sleep},
+            {'phrase': 'wake up',            'callback_fn': wakeup},
+            
+            {'phrase': '(very) cool',        'callback_fn': thankyou},
+            {'phrase': 'really',             'callback_fn': yeswhynot},
+            {'phrase': 'seriously',          'callback_fn': yeswhynot},
+            {'phrase': 'what is that',       'callback_fn': imthemirror},
          ];
          angular.forEach(commands, function(cmd, key){
             AnnyangService.addCommand(cmd['phrase'], cmd['callback_fn']);
