@@ -8,8 +8,8 @@
 
       service.init = function(geoposition) {
          geoloc = geoposition;
-         // return $http.get('https://api.forecast.io/forecast/'+FORCAST_API_KEY+'/'+geoposition.coords.latitude+','+geoposition.coords.longitude + '?units=si').
-         var url = 'https://api.forecast.io/forecast/'+FORCAST_API_KEY+'/'+geoposition.coords.latitude+','+geoposition.coords.longitude;
+         // return $http.get('https://api.forecast.io/forecast/'+FORECAST_API_KEY+'/'+geoposition.coords.latitude+','+geoposition.coords.longitude + '?units=si').
+         var url = 'https://api.forecast.io/forecast/'+FORECAST_API_KEY+'/'+geoposition.coords.latitude+','+geoposition.coords.longitude;
          console.log(url);
          return $http.jsonp(url + "?callback=JSON_CALLBACK").then(function(data) {
             console.log(data);
