@@ -46,9 +46,8 @@ app = tornado.web.Application([
 if __name__ == '__main__':
     ADC.setup()
     server = tornado.httpserver.HTTPServer(app, ssl_options = {
-        "certfile": "/usr/local/etc/nginx/ssl/nginx.crt",
-        "keyfile": "/usr/local/etc/nginx/ssl/nginx.key",
+        "certfile": "/etc/nginx/ssl/nginx.crt",
+        "keyfile": "/etc/nginx/ssl/nginx.key",
     })
     server.listen(8888)
-    # app.listen(8888)
-#     tornado.ioloop.IOLoop.instance().start()
+    tornado.ioloop.IOLoop.instance().start()
