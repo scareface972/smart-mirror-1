@@ -2,3 +2,4 @@ python.pem
 *.DS_Store
 config.js
 *.pyc
+bower_components

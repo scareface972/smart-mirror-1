@@ -196,6 +196,13 @@
          };
          
          
+         /*** Hue Lighting Service ***/
+         HueService.init();
+         AnnyangService.addCommand('(turn) (the) :state (the) light(s) *action', function(state, action) {
+            HueService.performUpdate(state + " " + action);
+         });
+         
+         
          /***************************************************/
          /******** ADD COMMANDS INTO ANNYANG SERVICE ********/
          /***************************************************/
