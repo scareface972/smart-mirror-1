@@ -1,7 +1,7 @@
 (function(angular) {
    'use strict';   
 
-   function MirrorCtrl(AnnyangService, InfraDistanceService, VoiceSynthesisService, GeolocationService, WeatherService, MapService, HueService, $scope, $timeout, $window) {
+   function MirrorCtrl(AnnyangService, hue, InfraDistanceService, VoiceSynthesisService, GeolocationService, WeatherService, MapService, $scope, $timeout, $window, $log) {
       var _this = this;
       
       $scope.listening  = false;
@@ -12,11 +12,15 @@
       $scope.colors           = ["#6ed3cf", "#9068be", "#e1e8f0", "#e62739"];
       $scope.mirror_response  = "Say something, or say 'MENU' for help...";
 
-      $scope.last_distance       = 0;      
+      $scope.last_distance       = 0;
       $scope.last_distance_count = 0;
+      
+      /**** Light states ****/
+      $scope.lights = [];
       
       /*****************************************/
       /* Default display flag for each section */
+      /*****************************************/
       $scope.sections = {
          display_complement   : true,
          display_time         : false,
@@ -24,6 +28,7 @@
          display_weather      : false,
          display_map          : false,
          display_sleep        : false,
+         display_light        : false
       };      
       
       /**************************************/
@@ -75,15 +80,20 @@
          GeolocationService.getLocation().then(function(geoposition){
             console.log("Geoposition", geoposition);
             WeatherService.init(geoposition).then(function(){
-               $scope.currentForcast = WeatherService.currentForcast();
-               $scope.weeklyForcast = WeatherService.weeklyForcast();
-               console.log("Current", $scope.currentForcast);
-               console.log("Weekly", $scope.weeklyForcast);
+               $scope.currentforecast = WeatherService.currentforecast();
+               $scope.weeklyforecast = WeatherService.weeklyforecast();
+               console.log("Current", $scope.currentforecast);
+               console.log("Weekly", $scope.weeklyforecast);
                //refresh the weather every hour
                //this doesn't acutually update the UI yet
                //$timeout(WeatherService.refreshWeather, 3600000);
             });
          });
+         
+         
+         /*****************************************/
+         /******** INFRA DISTANCE SECTIONs ********/
+         /*****************************************/
          
          if (DISTANCE_DETECTION == true) {
             InfraDistanceService.setup_callback(function(d){               
@@ -108,9 +118,67 @@
                }
                
             });
+         };
+         
+         
+         /*****************************************/
+         /********** HUE LIGHT SECTIONs ***********/
+         /*****************************************/
+         var myHue;
+         myHue = hue;
+         myHue.setup({
+            bridgeIP: HUE_LOCAL_IP,
+            bridgePort: HUE_LOCAL_PORT,
+            username: HUE_USERNAME
+         });
+         
+         var get_lights = function(){            
+            var new_state = invert_section('display_light');
+            if (new_state == true) { // ON
+               myHue.getLights().then(function(lights){
+                  $scope.lights = lights;
+                  // console.log($scope.lights);
+               });
+               switch_all_sections_to_state_except(false, ['display_light']);
+               switch_sections(['display_light'], true);
+               log_response('Ok, viewing lighting condition');
+            } else {
+               switch_all_sections_to_state_except(false, []);
+               switch_sections(['display_complement'], true);
+               log_response('Ok, quit viewing lighting condition');
+            }
+            
+         };
+         
+         var light_refresh = function(){
+            switch_sections(['display_light'], false);
+            myHue.getLights().then(function(lights){
+               $scope.lights = lights;
+               // console.log($scope.lights);
+               switch_sections(['display_light'], true);
+               log_response('Ok, updating lighting condition');
+            });
+         };
+         
+         var turn_onoff_light = function(state, lightname){            
+            myHue.getLights().then(function(lights){               
+               $scope.lights = lights;
+               angular.forEach($scope.lights, function(light, key){
+                  if (light.name.toLowerCase() === lightname.toLowerCase()){
+                     var light_state = (state == "on") ? true : false;
+                     switch_all_sections_to_state_except(false, ['display_light']);
+                     switch_sections(['display_light'], false);
+                     
+                     myHue.setLightState(key, {"on": light_state}).then(function(response) {
+                         $scope.lights[key].state.on = light_state;
+                         log_response('Ok, ' + lightname + ' is turned ' + state);
+                       });
+                     switch_sections(['display_light'], true);
+                  }
+               });
+            });            
+            
          }
-
-  
          
          
          /**************************************/
@@ -148,11 +216,12 @@
          var show_hide_map = function(){
             var new_state = invert_section('display_map');
             if (new_state == true) { // ON
-               switch_sections(['display_menu', 'display_complement'], false);
+               switch_all_sections_to_state_except(false, ['display_map']);
+               // switch_sections(['display_menu', 'display_complement'], false);
             } else {
                switch_sections(['display_menu'], true);
             }
-            log_response('Ok, turning ' + (new_state == true?'ON':'OFF') + ' MAP');
+            log_response('Ok, turning ' + (new_state == true?'ON':'OFF') + ' map');
          };
          
          /*** MAP OF *location ***/
@@ -196,12 +265,6 @@
          };
          
          
-         /*** Hue Lighting Service ***/
-         HueService.init();
-         AnnyangService.addCommand('(turn) (the) :state (the) light(s) *action', function(state, action) {
-            HueService.performUpdate(state + " " + action);
-         });
-         
          
          /***************************************************/
          /******** ADD COMMANDS INTO ANNYANG SERVICE ********/
@@ -213,6 +276,10 @@
             {'phrase': 'WEATHER',            'callback_fn': show_hide_weather},
             {'phrase': 'MAP',                'callback_fn': show_hide_map},
             {'phrase': 'MAP of *location',   'callback_fn': load_map_location},
+            
+            {'phrase': 'light(s)',                 'callback_fn': get_lights},
+            {'phrase': 'light(s) refresh',         'callback_fn': light_refresh},    
+            {'phrase': 'turn :state *lightname',   'callback_fn': turn_onoff_light},
             
             
             {'phrase': '(Go to) sleep',      'callback_fn': sleep},
@@ -228,50 +295,6 @@
          });
          
          
-//          // Show map
-//          AnnyangService.addCommand('Show map', function() {
-//             console.debug("Going on an adventure?");
-//             $scope.focus = "map";
-//          });
-//
-//
-//
-//          // Show map of specific location
-//          AnnyangService.addCommand('Show (me a) map of *location', function(location) {
-//             console.debug("Getting map of", location);
-//             $scope.map = MapService.generateMap(location);
-//             $scope.focus = "map";
-//          });
-//
-//          // Zoom in map
-//          AnnyangService.addCommand('(Map) zoom in', function() {
-//             console.debug("Zoooooooom!!!");
-//             $scope.map = MapService.zoomIn();
-//             $scope.focus = "map";
-//          });
-//
-//          // Zoom out map
-//          AnnyangService.addCommand('(Map) zoom out', function() {
-//             console.debug("Moooooooooz!!!");
-//             $scope.map = MapService.zoomOut();
-//             $scope.focus = "map";
-//          });
-//
-//          // Reset map
-//          AnnyangService.addCommand('(Map) reset zoom', function() {
-//             console.debug("Zoooommmmmzzz00000!!!");
-//             $scope.map = MapService.reset();
-//             $scope.focus = "map";
-//          });
-//
-//
-//          // Reload page
-//          var reload_page_function = function(){
-//             console.debug("reload page!!!");
-//             $window.location.reload();
-//          };
-//          AnnyangService.addCommand('reload (page)', reload_page_function);
-//          AnnyangService.addCommand('refresh (page)', reload_page_function);
          
          //Track when the Annyang is listening to us
          AnnyangService.start(function(listening){
@@ -283,39 +306,6 @@
             console.debug(allSpeech);
             _this.addResult(allSpeech);
          });
-         
-
-
-         // Search images
-         // AnnyangService.addCommand('Show me *term', function(term) {
-         //    console.debug("Showing", term);
-         // });
-
-
-
-         // Set a reminder
-         // AnnyangService.addCommand('Remind me to *task', function(task) {
-         //    console.debug("I'll remind you to", task);
-         // });
-
-         // Clear reminders
-         // AnnyangService.addCommand('Clear reminders', function() {
-         //    console.debug("Clearing reminders");
-         // });
-
-         
-
-         // Check the time
-         // AnnyangService.addCommand('what time is it', function(task) {
-         //    console.debug("It is", moment().format('h:mm:ss a'));
-         //    _this.clearResults();
-         // });
-
-         // Turn lights off
-         // AnnyangService.addCommand('(turn) (the) :state (the) light(s) *action', function(state, action) {
-            //             HueService.performUpdate(state + " " + action);
-            //          });
-
          
             
             

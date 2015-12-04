@@ -3,7 +3,7 @@
 
    function WeatherService($http) {
       var service = {};
-      service.forcast = null;
+      service.forecast = null;
       var geoloc = null;
 
       service.init = function(geoposition) {
@@ -13,28 +13,28 @@
          console.log(url);
          return $http.jsonp(url + "?callback=JSON_CALLBACK").then(function(data) {
             console.log(data);
-            return service.forcast = data;
+            return service.forecast = data;
          });
       };
 
-      //Returns the current forcast along with high and low tempratures for the current day 
-      service.currentForcast = function() {
-         if(service.forcast === null){
+      //Returns the current forecast along with high and low tempratures for the current day 
+      service.currentforecast = function() {
+         if(service.forecast === null){
             return null;
          }
-         service.forcast.data.currently.day = moment.unix(service.forcast.data.currently.time).format('ddd')
-         return service.forcast.data.currently;
+         service.forecast.data.currently.day = moment.unix(service.forecast.data.currently.time).format('ddd')
+         return service.forecast.data.currently;
       }
 
-      service.weeklyForcast = function(){
-         if(service.forcast === null){
+      service.weeklyforecast = function(){
+         if(service.forecast === null){
             return null;
          }
          // Add human readable info to info
-         for (var i = 0; i < service.forcast.data.daily.data.length; i++) {
-            service.forcast.data.daily.data[i].day = moment.unix(service.forcast.data.daily.data[i].time).format('ddd');
+         for (var i = 0; i < service.forecast.data.daily.data.length; i++) {
+            service.forecast.data.daily.data[i].day = moment.unix(service.forecast.data.daily.data[i].time).format('ddd');
          };
-         return service.forcast.data.daily;
+         return service.forecast.data.daily;
       }
 
       service.refreshWeather = function(){

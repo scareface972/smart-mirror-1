@@ -16,10 +16,11 @@
    <script src="js/annyang-service.js"></script>
    <script src="js/weather-service.js"></script>
    <script src="js/map-service.js"></script>
-   <script src="js/hue-service.js"></script>
    <script src="js/geolocation-service.js"></script>
    <script src="js/voice-synthesis-service.js"></script>
    <script src="js/infra-distance-service.js"></script>
+   <script src="js/hue-service.js" type="text/javascript" charset="utf-8"></script>
+     
    <script src="js/controller.js"></script>
 
    <!-- Styles and Resources -->
@@ -57,13 +58,44 @@
             <div class="map-container animate-grow" ng-show="sections['display_map']">
                <img class="map animate-grow" ng-src="{{map}}"/>
             </div>
+            <div ng-show="sections['display_light']">
+               <div ng-repeat="light in lights">
+                  <!-- 
+                     "state":{  
+                              "on":true,
+                              "bri":37,
+                              "alert":"none",
+                              "reachable":true
+                           },
+                           "type":"Dimmable light",
+                           "name":"Study light",
+                           "modelid":"LWB006",
+                           "manufacturername":"Philips",
+                           "uniqueid":"00:17:88:01:10:5b:9e:7f-0b",
+                           "swversion":"66015095",
+                           "pointsymbol":{  
+                              "1":"none",
+                              "2":"none",
+                              "3":"none",
+                              "4":"none",
+                              "5":"none",
+                              "6":"none",
+                              "7":"none",
+                              "8":"none"
+                           }
+                   -->    
+                  <div class="box">
+                     <img ng-src="{{light.state.on == true && 'images/light-bulb-on.png' || 'images/light-bulb-off.png'}}" width="84" height="114" alt="Light Bulb On"> <br/>
+                     {{light.name}}
+                  </div>              
+                  
+               </div>
+            </div>
             <div ng-show="sections['display_menu']">
                <div>
                    <div id="box1" class="box">
                       <img src="images/datetime.png" width="140" height="140" alt="Large">
                       Say 'TIME' or 'DATE'
-                       <!--p> Date &nbsp; Time </p>
-                       <p> Test </p-->
                    </div>    
                    <div class="box">
                       <img src="images/weather.png" width="140" height="140" alt="Weather">
@@ -73,15 +105,15 @@
                       <img src="images/map.png" width="140" height="140" alt="Map">
                       Say 'MAP' 
                    </div>
+                   <div class="box">
+                       <img src="images/light-bulb.png" width="140" height="140" alt="Light Bulb">
+                       Say 'LIGHT'
+                   </div>
+                   <div class="box">
+                       <img src="images/infra-sensor.png" width="140" height="140" alt="Infra Sensor">
+                       Say "Distance Check"
+                   </div>
                    <!--div class="box">
-                       <p> Test </p>
-                       <p> Test </p>
-                   </div>
-                   <div class="box">
-                       <p> Test </p>
-                       <p> Test </p>
-                   </div>
-                   <div class="box">
                        <p> Test </p>
                        <p> Test </p>
                    </div-->
