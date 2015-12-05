@@ -8,6 +8,7 @@
    <script src="js/jquery.min.js"></script>
    <script src="js/angular.min.js"></script>
    <script src="js/angular-animate.min.js"></script>
+   <script src="js/odometer.min.js"></script>
 
    <!-- App -->
    <!--<script src="/js/init.js"></script>-->
@@ -27,6 +28,8 @@
    <link rel="shortcut icon" href="favicon.ico" />
    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,800,700' rel='stylesheet' type='text/css'>
    <link rel="stylesheet" href="css/main.css" />
+   <link rel="stylesheet" href="css/odometer-theme-train-station.css" type="text/css" media="screen">
+   
 </head>
 <body ng-controller="MirrorCtrl as commands">
    <div class="top" >
@@ -37,14 +40,14 @@
       <div class="top-right">
          <div class="weather" ng-show="sections['display_weather']">
             <div class="weather-today">
-               <span class="tempreture">{{currentForcast.temperature}}&deg;</span>
+               <span class="tempreture">{{currentforecast.temperature}}&deg;</span>
             </div>
-            <div class="weather-week-descriptor">{{weeklyForcast.summary}}</div>
-            <div class="weather-week" ng-repeat="forcast in weeklyForcast.data" ng-if="$index > 0">
+            <div class="weather-week-descriptor">{{weeklyforecast.summary}}</div>
+            <div class="weather-week" ng-repeat="forecast in weeklyforecast.data" ng-if="$index > 0">
                <div class="weather-week-day">
-                  <span class="day light-grey">{{forcast.day}}</span>
-                  <span class="tempreture tempreture-min">{{forcast.temperatureMin}}</span>
-                  <span class="tempreture tempreture-max">{{forcast.temperatureMax}}</span>
+                  <span class="day light-grey">{{forecast.day}}</span>
+                  <span class="tempreture tempreture-min">{{forecast.temperatureMin}}</span>
+                  <span class="tempreture tempreture-max">{{forecast.temperatureMax}}</span>
                </div>
             </div>
          </div>
@@ -91,6 +94,9 @@
                   
                </div>
             </div>
+            <div ng-show="sections['display_infrared']">
+               <div id="odometer" class="odometer" ng-bind="distance">0000</div>millimeter
+            </div>
             <div ng-show="sections['display_menu']">
                <div>
                    <div id="box1" class="box">
@@ -111,7 +117,7 @@
                    </div>
                    <div class="box">
                        <img src="images/infra-sensor.png" width="140" height="140" alt="Infra Sensor">
-                       Say "Distance Check"
+                       Say 'Infra Red'
                    </div>
                    <!--div class="box">
                        <p> Test </p>

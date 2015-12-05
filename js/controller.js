@@ -14,6 +14,16 @@
 
       $scope.last_distance       = 0;
       $scope.last_distance_count = 0;
+      $scope.distance            = 0;
+      
+      $window.odometerOptions = {
+         auto: false, // Don't automatically initialize everything with class 'odometer'
+         // selector: '.my-numbers', // Change the selector used to automatically find things to be animated
+         // format: '(,ddd).dd', // Change how digit groups are formatted, and how many digits are shown after the decimal point
+         duration: 10, // Change how long the javascript expects the CSS animation to take
+         // theme: 'car', // Specify the theme (if you have more than one theme css file on the page)
+         animation: 'count' // Count is a simpler animation method which just increments the value,
+      };
       
       /**** Light states ****/
       $scope.lights = [];
@@ -28,7 +38,8 @@
          display_weather      : false,
          display_map          : false,
          display_sleep        : false,
-         display_light        : false
+         display_light        : false,
+         display_infrared     : false
       };      
       
       /**************************************/
@@ -67,6 +78,8 @@
          return $scope.sections[section_name];
       }
       
+      
+      
       /**************************************/
       /*** MAIN SECTIONS ****/
       /**************************************/
@@ -92,7 +105,7 @@
          
          
          /*****************************************/
-         /******** INFRA DISTANCE SECTIONs ********/
+         /******** IR DISTANCE SECTIONs ********/
          /*****************************************/
          
          if (DISTANCE_DETECTION == true) {
@@ -120,12 +133,65 @@
             });
          };
          
+         var process_distance_events = function(d, distance_threshold, count_threshold, near_action, far_action){
+            if (d > distance_threshold && $scope.last_distance > distance_threshold) {
+               $scope.last_distance_count = $scope.last_distance_count + 1;
+               $scope.last_distance       = d;               
+            } else if (d <= distance_threshold && $scope.last_distance <= distance_threshold) {
+               $scope.last_distance_count = $scope.last_distance_count + 1;
+               $scope.last_distance       = d;
+            } else {
+               $scope.last_distance_count = 0;
+               $scope.last_distance       = d;
+            }
+         
+            if ($scope.last_distance_count > count_threshold) {
+               if (d > distance_threshold) {
+                  far_action(1, false);
+               } else if (d <= distance_threshold) {
+                  near_action(1, true);
+               }      
+            }
+         };
+         
+         var light_on_off = function(light_index, is_on){
+            console.log("0: " + $scope.lights.length);
+            if (typeof $scope.lights !== 'undefined' || $scope.lights.length <= 0) {
+               myHue.getLights().then(function(lights){
+                  $scope.lights = lights;
+                  console.log("1: " + $scope.lights.length);
+                  console.log("light 1 ON");
+                  // myHue.setLightState(light_index, {"on": is_on});
+               });
+            } else {
+               console.log("2: " + $scope.lights.length);
+               if ($scope.lights[0].state.on == !is_on){
+                  console.log("light 1 OFF");
+                  // myHue.setLightState(1, {"on": is_on});
+               }
+            }
+         };
+         
+         var show_hide_infrared = function(){
+            var new_state = invert_section('display_infrared');
+            if (new_state == true) { // ON
+               switch_all_sections_to_state_except(false, ['display_infrared']);               
+               InfraDistanceService.setup_callback(function(d){
+                  $scope.distance = d;
+                  process_distance_events(d, MAX_DISTANCE, MIN_DISTANCE_COUNT, 
+                     light_on_off, light_on_off);
+               });
+            } else {
+               switch_sections(['display_menu'], true);
+            }
+            log_response('Ok, turning ' + (new_state == true?'ON':'OFF') + ' Infra-Red Distance Sensor');
+         };
+         
          
          /*****************************************/
          /********** HUE LIGHT SECTIONs ***********/
          /*****************************************/
-         var myHue;
-         myHue = hue;
+         var myHue = hue;
          myHue.setup({
             bridgeIP: HUE_LOCAL_IP,
             bridgePort: HUE_LOCAL_PORT,
@@ -190,6 +256,7 @@
             if ($scope.sections['display_sleep'] == false){
                var new_state = invert_section('display_menu');
                if (new_state == true) { // ON
+                  switch_all_sections_to_state_except(false, ['display_menu']);
                   switch_sections(['display_map', 'display_complement'], false);               
                }
                log_response('Ok, turning ' + (new_state == true?'ON':'OFF') + ' MENU');
@@ -233,6 +300,8 @@
          }
          
          
+         
+         
          /*** SLEEP ***/
          var sleep = function(){
             console.log($scope.sections);
@@ -251,6 +320,13 @@
             switch_sections(['display_complement'], true);
             log_response('Hello, say something, or say \'MENU\' for help...');
          };
+         
+         
+         var reload_page_function = function(){
+            log_response('Ok, refresh page now...');
+            $window.location.reload();
+         };
+         
          
          
          /*** Fun Commands ***/
@@ -274,6 +350,9 @@
             {'phrase': 'TIME',               'callback_fn': show_hide_time},
             {'phrase': 'DATE',               'callback_fn': show_hide_time},
             {'phrase': 'WEATHER',            'callback_fn': show_hide_weather},
+            
+            {'phrase': 'INFRARED',            'callback_fn': show_hide_infrared},
+
             {'phrase': 'MAP',                'callback_fn': show_hide_map},
             {'phrase': 'MAP of *location',   'callback_fn': load_map_location},
             
@@ -283,7 +362,8 @@
             
             
             {'phrase': '(Go to) sleep',      'callback_fn': sleep},
-            {'phrase': 'wake up',            'callback_fn': wakeup},
+            {'phrase': 'wake up',            'callback_fn': wakeup},            
+            {'phrase': 'refresh',            'callback_fn': reload_page_function},
             
             {'phrase': '(very) cool',        'callback_fn': thankyou},
             {'phrase': 'really',             'callback_fn': yeswhynot},
