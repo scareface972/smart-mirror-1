@@ -1,2 +1,9 @@
 var FORECAST_API_KEY = ""; 
-var HUE_BASE = "http://{IP_ADDRESS_OF_BRIDGE}/api/{Username}/";
+var WEBSOCKET_URL = "wss://192.168.1.181:8888/ws";
+var DISTANCE_DETECTION = false;
+var MAX_DISTANCE = 400;
+var MIN_DISTANCE_COUNT = 7;
+
+var HUE_USERNAME = "";
+var HUE_LOCAL_IP = "localhost";
+var HUE_LOCAL_PORT = 4443;
