@@ -76,9 +76,17 @@
       var invert_section = function(section_name){
          $scope.sections[section_name] = !$scope.sections[section_name];
          return $scope.sections[section_name];
-      }
+      };
       
-      
+      var extract_lights_data = function(lights){
+         var mylights = [];
+         angular.forEach(lights, function(light, key){
+            // console.log(key);
+            mylights[key] = light;
+         });
+         // console.log(mylights);
+         return mylights;
+      };    
       
       /**************************************/
       /*** MAIN SECTIONS ****/
@@ -120,14 +128,14 @@
                } else {
                   $scope.last_distance_count = 0;               
                   $scope.last_distance       = d;                                          
-               }      
+               }
                
                if ($scope.last_distance_count > MIN_DISTANCE_COUNT) {
                   if (d > MAX_DISTANCE && $scope.sections['display_sleep'] == false) {
                      sleep();                              
                   } else if (d <= MAX_DISTANCE && $scope.sections['display_sleep'] == true) {
                      wakeup();
-                  }      
+                  }
                }
                
             });
@@ -144,31 +152,67 @@
                $scope.last_distance_count = 0;
                $scope.last_distance       = d;
             }
+            
+            console.log("d - count - count_threshold: " + d + " - " + $scope.last_distance_count + " - " + count_threshold);
          
-            if ($scope.last_distance_count > count_threshold) {
+            if ($scope.last_distance_count == count_threshold) {
                if (d > distance_threshold) {
-                  far_action(1, false);
+                  far_action();
+                  // far_action(1, false);
                } else if (d <= distance_threshold) {
-                  near_action(1, true);
+                  // near_action(1, true);
+                  near_action();
                }      
+               $scope.last_distance_count = 0;
             }
          };
          
-         var light_on_off = function(light_index, is_on){
-            console.log("0: " + $scope.lights.length);
-            if (typeof $scope.lights !== 'undefined' || $scope.lights.length <= 0) {
+         var light_on = function(){
+            var key = 1;
+            if (typeof $scope.lights == 'undefined' || $scope.lights.length <= 0) {
+               // console.log("0: " + $scope.lights.length);
                myHue.getLights().then(function(lights){
-                  $scope.lights = lights;
-                  console.log("1: " + $scope.lights.length);
-                  console.log("light 1 ON");
-                  // myHue.setLightState(light_index, {"on": is_on});
+                  $scope.lights = extract_lights_data(lights);
+                  // console.log("1: " + $scope.lights.length);
+                  console.log("1: Bring light 1 ON");
+                  myHue.setLightState(key, {"on": true});
+                  $scope.lights[key].state.on = true;
                });
             } else {
-               console.log("2: " + $scope.lights.length);
-               if ($scope.lights[0].state.on == !is_on){
-                  console.log("light 1 OFF");
-                  // myHue.setLightState(1, {"on": is_on});
+               // console.log("2: " + $scope.lights.length);
+               if ($scope.lights[key].state.on == false){
+                  // console.log("Light 1 state: " + $scope.lights[0].state.on == false);
+                  console.log("2: Bring light 1 ON");
+                  myHue.setLightState(key, {"on": true});
+                  $scope.lights[key].state.on = true;
+               } else {
+                  console.log("3: Light 1 already ON");
                }
+            }
+         };
+         
+         var light_off = function(){
+            var key = 1;
+            if (typeof $scope.lights == 'undefined' || $scope.lights.length <= 1) {
+               // console.log("0: " + $scope.lights.length);
+               myHue.getLights().then(function(lights){
+                  $scope.lights = extract_lights_data(lights);
+                  // console.log("1: " + $scope.lights.length);
+                  console.log("4: Bring light 1 OFF");
+                  myHue.setLightState(key, {"on": false});
+                  $scope.lights[key].state.on = false;
+               });
+            } else {
+               // console.log("2: " + $scope.lights.length);
+               if ($scope.lights[key].state.on == true){
+                  // console.log("Light 1 state: " + $scope.lights[key].state.on == true);
+                  console.log("5: Bring light 1 OFF");
+                  myHue.setLightState(key, {"on": false});         
+                  $scope.lights[key].state.on = false;         
+               } else {
+                  console.log("6: light 1 already OFF");
+               }
+               
             }
          };
          
@@ -179,9 +223,10 @@
                InfraDistanceService.setup_callback(function(d){
                   $scope.distance = d;
                   process_distance_events(d, MAX_DISTANCE, MIN_DISTANCE_COUNT, 
-                     light_on_off, light_on_off);
+                     light_on, light_off);
                });
             } else {
+               InfraDistanceService.close();
                switch_sections(['display_menu'], true);
             }
             log_response('Ok, turning ' + (new_state == true?'ON':'OFF') + ' Infra-Red Distance Sensor');
@@ -351,7 +396,7 @@
             {'phrase': 'DATE',               'callback_fn': show_hide_time},
             {'phrase': 'WEATHER',            'callback_fn': show_hide_weather},
             
-            {'phrase': 'INFRARED',            'callback_fn': show_hide_infrared},
+            {'phrase': 'PROXIMITY',          'callback_fn': show_hide_infrared},
 
             {'phrase': 'MAP',                'callback_fn': show_hide_map},
             {'phrase': 'MAP of *location',   'callback_fn': load_map_location},

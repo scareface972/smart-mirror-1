@@ -4,6 +4,7 @@
    function InfraDistanceService($window) {
       
       var service = {};
+      var ws = {};
       
       // Keep all pending requests here until they get responses
       // var callback_fn;
@@ -12,7 +13,7 @@
          console.log("connecting to websocket: " + WEBSOCKET_URL);
          // callback_fn = callback;
          // Create our websocket object with the address to the websocket
-         var ws = new WebSocket(WEBSOCKET_URL);
+         ws = new WebSocket(WEBSOCKET_URL);
          ws.onopen = function(){  
             console.log("Socket has been opened!");  
          };
@@ -21,9 +22,11 @@
             // console.log("onmessage: " + message);
             callback(JSON.parse(message.data));
          };
-         
-         
       };
+      
+      service.close = function () {
+         ws.close();
+      }
         
       return service;
    }
