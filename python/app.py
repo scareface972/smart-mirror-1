@@ -30,8 +30,9 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
         
     def push_message(self):
         analogVal = ADC.getResult(0)
-	distance = (6762/(analogVal-9))-4
-        self.write_message(str(distance))
+        distance = (6762/(analogVal-9))-4
+        if distance > 0:
+            self.write_message(str(distance))
         tornado.ioloop.IOLoop.instance().add_timeout(datetime.timedelta(seconds=0.6), self.push_message)
 
     def on_close(self):
