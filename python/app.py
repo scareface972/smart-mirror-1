@@ -23,7 +23,7 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         if self not in cl:
             cl.append(self)
-            tornado.ioloop.IOLoop.instance().add_timeout(datetime.timedelta(seconds=0.6), self.push_message)
+            tornado.ioloop.IOLoop.instance().add_timeout(datetime.timedelta(seconds=0.1), self.push_message)
             
     def on_message(self, message):
         self.write_message(u"You said: " + message)
@@ -33,7 +33,7 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
         distance = (6762/(analogVal-9))-4
         if distance > 0:
             self.write_message(str(distance))
-        tornado.ioloop.IOLoop.instance().add_timeout(datetime.timedelta(seconds=2), self.push_message)
+        tornado.ioloop.IOLoop.instance().add_timeout(datetime.timedelta(seconds=1), self.push_message)
 
     def on_close(self):
         if self in cl:
