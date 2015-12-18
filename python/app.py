@@ -5,7 +5,6 @@ import tornado.ioloop
 import tornado.web
 import datetime
 
-
 import json
 import ADC0832 as ADC
 import RPi.GPIO as GPIO
@@ -40,9 +39,29 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
             cl.remove(self)
 
 
+class EchoSocketHandler(tornado.websocket.WebSocketHandler):
+    def check_origin(self, origin):
+        return True
+
+    def open(self):
+        if self not in cl:
+            cl.append(self)
+            print len(cl)
+            
+    def on_message(self, message):
+        for c in cl:
+            # c.write_message(u"" + message)
+            if c != self:
+                c.write_message(u"" + message)
+        
+    def on_close(self):
+        if self in cl:
+            cl.remove(self)
+
 app = tornado.web.Application([
     # (r'/', IndexHandler),
     (r'/ws', SocketHandler),
+    (r'/voice', EchoSocketHandler),
     # (r'/api', ApiHandler),
     # (r'/(favicon.ico)', web.StaticFileHandler, {'path': '../'}),
     # (r'/(rest_api_example.png)', web.StaticFileHandler, {'path': './'}),
