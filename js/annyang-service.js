@@ -1,55 +1,58 @@
 (function(annyang) {
-    'use strict';
+   'use strict';
 
-    function AnnyangService($rootScope) {
-        var service = {};
+   function AnnyangService($rootScope) {
+      var service = {};
         
-        // COMMANDS
-        service.commands = {};
+      // COMMANDS
+      service.commands = {};
 
-        service.addCommand = function(phrase, callback) {
-            var command = {};
+      service.addCommand = function(phrase, callback) {
+         var command = {};
             
-            // Wrap annyang command in scope apply
-            command[phrase] = function(arg1, arg2) {
-                $rootScope.$apply(callback(arg1, arg2));
-            };
+         // Wrap annyang command in scope apply
+         command[phrase] = function(arg1, arg2) {
+            $rootScope.$apply(callback(arg1, arg2));
+         };
 
-            // Extend our commands list
-            angular.extend(service.commands, command);
+         // Extend our commands list
+         angular.extend(service.commands, command);
             
-            // Add the commands to annyang
-            annyang.addCommands(service.commands);
-            console.debug('added command "' + phrase + '"', service.commands);
-        };
-
-
-        service.start = function(listening) {
-            annyang.addCommands(service.commands);
-            annyang.debug(true);
+         // Add the commands to annyang
+         annyang.addCommands(service.commands);
+         console.debug('added command "' + phrase + '"', service.commands);
+      };
+      
+      service.start = function(listening, echo_in, echo_host) {
+         annyang.addCommands(service.commands);
+         annyang.debug(true);
+         if (echo_in == true) {
+            annyang.start(echo_host);
+         } else {
             annyang.start();
-            if (typeof(listening) == "function") {
-                annyang.addCallback('start', function(){$rootScope.$apply(listening(true));});
-                annyang.addCallback('end', function(data){console.log("End", data)});
-            };
-        };
+         }         
+         if (typeof(listening) == "function") {
+            annyang.addCallback('start', function(){$rootScope.$apply(listening(true));});
+            annyang.addCallback('end', function(data){console.log("End", data)});
+         };
+      };
         
-        service.abort = function() {
-           annyang.abort();
-        }
+      service.abort = function() {
+         annyang.abort();
+      }
         
-        service.pause = function() {
-           annyang.pause();
-        };
+      service.pause = function() {
+         annyang.pause();
+      };
         
-        service.resume = function() {
-           annyang.resume()
-        };
+      service.resume = function() {
+         annyang.resume()
+      };
         
-        return service;
-    }
+      return service;
+   }
 
-    angular.module('SmartMirror')
-        .factory('AnnyangService', AnnyangService);
+   angular.module('SmartMirror')
+   .factory('AnnyangService', AnnyangService);
 
 }(window.annyang));

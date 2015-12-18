@@ -424,7 +424,7 @@
          //Track when the Annyang is listening to us
          AnnyangService.start(function(listening){
             $scope.listening = listening;
-         });         
+         }, ECHO_IN, ECHO_HOST);
          
          // Fallback for all commands
          AnnyangService.addCommand('*allSpeach', function(allSpeech) {

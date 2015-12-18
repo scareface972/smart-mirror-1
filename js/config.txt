@@ -7,3 +7,7 @@ var MIN_DISTANCE_COUNT = 7;
 var HUE_USERNAME = "";
 var HUE_LOCAL_IP = "localhost";
 var HUE_LOCAL_PORT = 4443;
+
+var CONSOLE_RE_ID = "svo-iot-smart-mirror"; //http://console.re/svo-iot-smart-mirror
+
+var REMOTE_HOST = "";
