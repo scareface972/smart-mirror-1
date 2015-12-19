@@ -27,6 +27,9 @@ location /api {
 }
 ```
 
+## Demo
+
+https://www.youtube.com/watch?v=f-1scIEteDk
 
 ## Usage
 
